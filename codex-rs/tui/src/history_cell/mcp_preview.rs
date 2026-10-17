@@ -18,6 +18,9 @@ use std::collections::VecDeque;
 
 impl McpToolCallCell {
     pub(super) fn compact_mcp_lines(&self, width: u16) -> Vec<HyperlinkLine> {
+        if let Some(lines) = self.execution_lines(width) {
+            return lines;
+        }
         let status = self.success();
         let (marker, verb) = match status {
             Some(true) => ("•".green().bold(), "Called"),

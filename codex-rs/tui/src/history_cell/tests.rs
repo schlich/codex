@@ -104,6 +104,7 @@ async fn test_config() -> Config {
     let codex_home = std::env::temp_dir();
     ConfigBuilder::default()
         .codex_home(codex_home.clone())
+        .loader_overrides(codex_config::LoaderOverrides::without_managed_config_for_tests())
         .build()
         .await
         .expect("config")

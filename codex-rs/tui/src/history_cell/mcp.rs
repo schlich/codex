@@ -14,6 +14,9 @@ mod result;
 #[path = "mcp_preview.rs"]
 mod preview;
 
+#[path = "mcp_execution.rs"]
+mod execution;
+
 #[path = "computer_activity.rs"]
 mod computer_activity;
 pub(crate) use computer_activity::ComputerActivityCell;
@@ -54,6 +57,8 @@ pub(crate) struct McpToolCallCell {
     start_time: Instant,
     duration: Option<Duration>,
     result: Option<Result<McpToolResult, String>>,
+    execution_result: Option<execution::ExecutionResult>,
+    execution_raw_result: Option<codex_protocol::mcp::CallToolResult>,
     animations_enabled: bool,
 }
 
@@ -65,6 +70,10 @@ pub(crate) struct McpInvocation {
 }
 
 impl McpInvocation {
+    pub(crate) fn is_execution(&self) -> bool {
+        execution::ExecutionTool::detect(self).is_some()
+    }
+
     pub(crate) fn is_computer_activity(&self) -> bool {
         self.server == "cua_repl"
     }
@@ -96,6 +105,8 @@ impl McpToolCallCell {
             start_time: Instant::now(),
             duration: None,
             result: None,
+            execution_result: None,
+            execution_raw_result: None,
             animations_enabled,
         }
     }
@@ -106,17 +117,29 @@ impl McpToolCallCell {
 
     pub(crate) fn complete(
         &mut self,
-        duration: Duration,
+        duration: impl Into<Option<Duration>>,
         result: Result<codex_protocol::mcp::CallToolResult, String>,
     ) {
+        self.execution_result = execution::ExecutionTool::detect(&self.invocation)
+            .and_then(|tool| result.as_ref().ok().map(|result| tool.result(result)));
+        self.execution_raw_result = self
+            .execution_result
+            .as_ref()
+            .and_then(|_| result.as_ref().ok().cloned());
         let result = result.map(|result| McpToolResult::new(result, self.result_kind()));
-        self.duration = Some(duration);
+        self.duration = duration.into();
         self.result = Some(result);
     }
 
     fn success(&self) -> Option<bool> {
         match self.result.as_ref() {
-            Some(Ok(result)) => Some(!result.is_error),
+            Some(Ok(result)) => Some(
+                !result.is_error
+                    && !self
+                        .execution_result
+                        .as_ref()
+                        .is_some_and(|execution| execution.failed()),
+            ),
             Some(Err(_)) => Some(false),
             None => None,
         }
@@ -147,6 +170,11 @@ impl McpToolCallCell {
         width: u16,
         mode: McpToolCallRenderMode,
     ) -> Vec<HyperlinkLine> {
+        if mode == McpToolCallRenderMode::Display
+            && let Some(lines) = self.execution_lines(width)
+        {
+            return lines;
+        }
         let mut lines: Vec<HyperlinkLine> = Vec::new();
         let status = self.success();
         let node_repl = self.result_kind() == McpResultKind::NodeRepl;
@@ -301,6 +329,12 @@ impl McpToolCallCell {
         if mode == McpToolCallRenderMode::Display {
             preview.finish_hyperlink_lines()
         } else {
+            for metadata in self.execution_metadata_lines() {
+                lines.extend(adaptive_wrap_hyperlink_lines(
+                    &[HyperlinkLine::new(metadata)],
+                    options.clone(),
+                ));
+            }
             lines
         }
     }
@@ -402,6 +436,8 @@ impl HistoryCell for McpToolCallCell {
                 Err(err) => lines.push(Line::from(format!("Error: {err}"))),
             }
         }
+
+        lines.extend(self.execution_metadata_lines());
 
         lines
     }

@@ -160,6 +160,12 @@ fn export_activity_cell(item: &ThreadItem) -> Option<PlainHistoryCell> {
         } => {
             let mut lines =
                 vec![format!("mcp tool: {server}/{tool}({arguments}) · {status:?}").into()];
+            let execution = crate::history_cell::McpInvocation {
+                server: server.clone(),
+                tool: tool.clone(),
+                arguments: Some(arguments.clone()),
+            }
+            .is_execution();
             if let Some(result) = result {
                 for content in &result.content {
                     match serde_json::from_value::<rmcp::model::ContentBlock>(content.clone()) {
@@ -187,6 +193,13 @@ fn export_activity_cell(item: &ThreadItem) -> Option<PlainHistoryCell> {
                 }
                 if let Some(content) = &result.structured_content {
                     lines.push(format!("structured result: {content}").into());
+                }
+                if execution {
+                    lines
+                        .push(format!("raw content: {}", serde_json::json!(result.content)).into());
+                    if let Some(meta) = &result.meta {
+                        lines.push(format!("MCP metadata: {meta}").into());
+                    }
                 }
             }
             if let Some(error) = error {

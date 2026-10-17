@@ -23,6 +23,8 @@ pub(super) enum McpResultKind {
 
 #[derive(Debug)]
 pub(super) struct McpToolResult {
+    pub(super) structured_content: Option<serde_json::Value>,
+    pub(super) meta: Option<serde_json::Value>,
     pub(super) content: Vec<McpContentBlock>,
     pub(super) is_error: bool,
     pub(super) has_image: bool,
@@ -103,6 +105,8 @@ impl McpToolResult {
             .collect();
 
         Self {
+            structured_content: result.structured_content,
+            meta: result.meta,
             content,
             is_error: result.is_error.unwrap_or(false),
             has_image,

@@ -1,0 +1,22 @@
+{
+  "input": "# Renderer success fixture\n^printf 'done\\n' | complete",
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{cwd:/home/schlich/dotfiles,history_index:63,timestamp:2026-10-17T09:33:59.227690521+00:00,output:{stdout:\"done\n\",stderr:\"\",exit_code:0}}"
+      }
+    ],
+    "structuredContent": {
+      "cwd": "/home/schlich/dotfiles",
+      "history_index": 63,
+      "timestamp": "2026-10-17T09:33:59.227690521+00:00",
+      "output": {
+        "stdout": "done\n",
+        "stderr": "",
+        "exit_code": 0
+      }
+    },
+    "isError": false
+  }
+}

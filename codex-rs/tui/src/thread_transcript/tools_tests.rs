@@ -1,4 +1,5 @@
 use super::*;
+use crate::history_cell::HistoryCell;
 use crate::test_support::PathBufExt;
 use crate::test_support::test_path_buf;
 use crate::thread_transcript::RawReasoningVisibility;
@@ -54,6 +55,53 @@ fn mcp_item(server: &str, id: &str) -> ThreadItem {
         })),
         error: None,
         duration_ms: Some(5),
+    }
+}
+
+#[test]
+fn execution_replay_preserves_unknown_timing_and_protocol_metadata() {
+    for duration in [None, Some(-1), Some(0), Some(1200)] {
+        let mut item = mcp_item("nushell", "execution");
+        if let ThreadItem::McpToolCall {
+            tool,
+            arguments,
+            result,
+            duration_ms,
+            ..
+        } = &mut item
+        {
+            *tool = "evaluate".into();
+            *arguments = json!({"input":"^tool | complete"});
+            *duration_ms = duration;
+            let result = result.as_mut().unwrap();
+            result.structured_content =
+                Some(json!({"output":{"stdout":"done", "stderr":"", "exit_code":0}}));
+            result.meta = Some(json!({"trace":"retained"}));
+        }
+        let history = McpHistory::from_item(item).unwrap();
+        assert_eq!(
+            history.duration,
+            duration
+                .and_then(|ms| u64::try_from(ms).ok())
+                .map(Duration::from_millis)
+        );
+        let cell = history.into_cell();
+        let shown = cell
+            .display_lines(120)
+            .iter()
+            .map(ToString::to_string)
+            .collect::<Vec<_>>()
+            .join("\n");
+        assert!(shown.contains("Succeeded"));
+        assert_eq!(shown.contains(" · 0.0s"), duration == Some(0));
+        assert_eq!(shown.contains(" · 1.2s"), duration == Some(1200));
+        let raw = cell
+            .raw_lines()
+            .iter()
+            .map(ToString::to_string)
+            .collect::<Vec<_>>()
+            .join("\n");
+        assert!(raw.contains("MCP metadata: {\"trace\":\"retained\"}"));
     }
 }
 

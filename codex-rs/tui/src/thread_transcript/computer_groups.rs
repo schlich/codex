@@ -10,7 +10,7 @@ use std::sync::Arc;
 
 pub(super) fn append(group: &mut ComputerActivityCell, call: McpHistory) {
     let cell = McpToolCallCell::new(call.id, call.invocation, /*animations_enabled*/ false);
-    group.complete(cell, call.duration, call.result);
+    group.complete(cell, call.duration.unwrap_or_default(), call.result);
 }
 
 /// Rebuild only an adjacent computer group, using its persisted IDs to verify the turn boundary.

@@ -1,0 +1,173 @@
+---
+source: tui/src/history_cell/mcp_execution_tests.rs
+expression: demonstrations()
+---
+Captured Nushell success (80 columns)
+• Nushell · Succeeded · exit 0 · 0.1s
+  # Renderer success fixture
+  ^printf 'done\n' | complete
+  cwd after: /home/schlich/dotfiles
+  done
+
+Captured Nushell failure (80 columns)
+• Nushell · Failed · exit 1 · 0.1s
+  # Renderer failure fixture
+  ^false | complete
+  cwd after: /home/schlich/dotfiles
+
+Running (80 columns)
+• Nushell · Running
+  # Inspect generated files
+  let names = [alpha beta]
+  $names | each {|name|
+      $"file: ($name)"
+  }
+
+Empty evaluation (80 columns)
+• Nushell · Completed · 1.2s
+  let x = 42
+  cwd after: /workspace
+
+Exit unknown (80 columns)
+• Nushell · Completed · 1.2s
+  # Inspect generated files
+  let names = [alpha beta]
+  $names | each {|name|
+      $"file: ($name)"
+  }
+  cwd after: /workspace
+  file: alpha
+  file: beta
+
+Explicit success (80 columns)
+• Nushell · Succeeded · exit 0 · 1.2s
+  ^printf 'done' | complete
+  cwd after: /workspace
+  done
+
+Explicit failure (80 columns)
+• Nushell · Failed · exit 7 · 1.2s
+  ^tool check | complete
+  cwd after: /workspace
+  permission denied
+  check credentials
+  one
+  +3 lines (⌃t to view transcript)
+
+Evaluation error (80 columns)
+• Nushell · Failed · 1.2s
+  open missing.nu
+  File not found
+  Help: Check the supplied path
+
+Truncated at server (80 columns)
+• Nushell · Completed · 1.2s
+  $history.7
+  cwd after: /workspace
+  output truncated, full result in $history.8
+
+Transport failure (80 columns)
+• Nushell · Failed · 0.0s
+  open missing.nu
+  MCP connection closed
+
+Legacy response (80 columns)
+• Nushell · Completed · 1.2s
+  1 + 1
+  {cwd:/workspace,history_index:7,output:raw}
+
+Long Unicode command (80 columns)
+• Nushell · Running
+  let description = 'long command with 页面 and 👩‍💻 plus https://example.com/a/
+  very/long/path/without/breaks'; $description
+
+Captured Nushell success (32 columns)
+• Nushell · Succeeded · exit 0 ·
+  0.1s
+  # Renderer success fixture
+  ^printf 'done\n' | complete
+  cwd after: /home/schlich/
+  dotfiles
+  done
+
+Captured Nushell failure (32 columns)
+• Nushell · Failed · exit 1 ·
+  0.1s
+  # Renderer failure fixture
+  ^false | complete
+  cwd after: /home/schlich/
+  dotfiles
+
+Running (32 columns)
+• Nushell · Running
+  # Inspect generated files
+  let names = [alpha beta]
+  $names | each {|name|
+      $"file: ($name)"
+  }
+
+Empty evaluation (32 columns)
+• Nushell · Completed · 1.2s
+  let x = 42
+  cwd after: /workspace
+
+Exit unknown (32 columns)
+• Nushell · Completed · 1.2s
+  # Inspect generated files
+  let names = [alpha beta]
+  $names | each {|name|
+      $"file: ($name)"
+  }
+  cwd after: /workspace
+  file: alpha
+  file: beta
+
+Explicit success (32 columns)
+• Nushell · Succeeded · exit 0 ·
+  1.2s
+  ^printf 'done' | complete
+  cwd after: /workspace
+  done
+
+Explicit failure (32 columns)
+• Nushell · Failed · exit 7 ·
+  1.2s
+  ^tool check | complete
+  cwd after: /workspace
+  permission denied
+  check credentials
+  one
+  +3 lines (⌃t to view transcri…
+
+Evaluation error (32 columns)
+• Nushell · Failed · 1.2s
+  open missing.nu
+  File not found
+  Help: Check the supplied path
+
+Truncated at server (32 columns)
+• Nushell · Completed · 1.2s
+  $history.7
+  cwd after: /workspace
+  output truncated, full result
+  in $history.8
+
+Transport failure (32 columns)
+• Nushell · Failed · 0.0s
+  open missing.nu
+  MCP connection closed
+
+Legacy response (32 columns)
+• Nushell · Completed · 1.2s
+  1 + 1
+  {cwd:/
+  workspace,history_index:7,outp
+  ut:raw}
+
+Long Unicode command (32 columns)
+• Nushell · Running
+  let description = 'long
+  command with 页面 and 👩‍💻 plus
+  https://example.com/a/very/
+  long/path/without/breaks';
+  $description

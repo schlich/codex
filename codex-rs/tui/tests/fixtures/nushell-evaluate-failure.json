@@ -1,0 +1,22 @@
+{
+  "input": "# Renderer failure fixture\n^false | complete",
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{cwd:/home/schlich/dotfiles,history_index:64,timestamp:2026-10-17T09:34:10.837087747+00:00,output:{stdout:\"\",stderr:\"\",exit_code:1}}"
+      }
+    ],
+    "structuredContent": {
+      "cwd": "/home/schlich/dotfiles",
+      "history_index": 64,
+      "timestamp": "2026-10-17T09:34:10.837087747+00:00",
+      "output": {
+        "stdout": "",
+        "stderr": "",
+        "exit_code": 1
+      }
+    },
+    "isError": false
+  }
+}

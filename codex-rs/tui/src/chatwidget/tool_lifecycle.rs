@@ -231,7 +231,9 @@ impl ChatWidget {
                 invocation,
                 self.local_settings.tui.animations && self.local_settings.tui.effects.progress,
             );
-            self.update_computer_activity(|cell| cell.complete(call, duration, result));
+            self.update_computer_activity(|cell| {
+                cell.complete(call, duration.unwrap_or_default(), result)
+            });
             self.bump_active_cell_revision();
             self.request_redraw();
             return;

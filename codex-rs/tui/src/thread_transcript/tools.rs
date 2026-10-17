@@ -187,7 +187,7 @@ impl CommandHistory {
 pub(crate) struct McpHistory {
     pub(crate) id: String,
     pub(crate) invocation: McpInvocation,
-    pub(crate) duration: Duration,
+    pub(crate) duration: Option<Duration>,
     pub(crate) result: Result<CallToolResult, String>,
 }
 
@@ -218,7 +218,7 @@ impl McpHistory {
                     content: result.content,
                     structured_content: result.structured_content,
                     is_error: Some(status == McpToolCallStatus::Failed),
-                    meta: None,
+                    meta: result.meta,
                 })
             }
             (None, None) => Err("MCP tool call completed without a result".to_string()),
@@ -230,7 +230,9 @@ impl McpHistory {
                 tool,
                 arguments: Some(arguments),
             },
-            duration: Duration::from_millis(duration_ms.unwrap_or_default().max(/*other*/ 0) as u64),
+            duration: duration_ms
+                .and_then(|ms| u64::try_from(ms).ok())
+                .map(Duration::from_millis),
             result,
         })
     }

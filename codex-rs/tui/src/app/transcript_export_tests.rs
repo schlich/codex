@@ -177,6 +177,35 @@ fn persisted_transcript_includes_file_and_mcp_details() {
 }
 
 #[test]
+fn persisted_execution_transcript_preserves_wire_content_and_metadata() {
+    let item: ThreadItem = serde_json::from_value(serde_json::json!({
+        "type":"mcpToolCall", "id":"execution", "server":"nushell", "tool":"evaluate",
+        "status":"completed", "arguments":{"input":"^tool | complete"},
+        "result":{
+            "content":[{"type":"text", "text":"raw output\n", "_meta":{"block":"retained"}}],
+            "structuredContent":{"cwd":"/after", "output":{"stdout":"out\n", "stderr":"err\n", "exit_code":3}},
+            "_meta":{"trace":"retained"}
+        }
+    })).unwrap();
+    let cell = super::export_activity_cell(&item).unwrap();
+    let raw = cell
+        .raw_lines()
+        .iter()
+        .map(ToString::to_string)
+        .collect::<Vec<_>>()
+        .join("\n");
+    for field in [
+        "raw output\\n",
+        "\"block\":\"retained\"",
+        "\"stdout\":\"out\\n\"",
+        "\"stderr\":\"err\\n\"",
+        "\"trace\":\"retained\"",
+    ] {
+        assert!(raw.contains(field), "missing {field}: {raw}");
+    }
+}
+
+#[test]
 fn transcript_file_resolves_relative_paths_and_refuses_to_overwrite() {
     let directory = tempfile::tempdir().expect("temporary directory");
     let path = write_transcript(
