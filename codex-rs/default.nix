@@ -1,6 +1,7 @@
 {
   cmake,
   llvmPackages,
+  glib,
   openssl,
   libcap ? null,
   rustPlatform,
@@ -12,7 +13,7 @@
 }:
 rustPlatform.buildRustPackage (_: {
   env.PKG_CONFIG_PATH = lib.makeSearchPathOutput "dev" "lib/pkgconfig" (
-    [ openssl ] ++ lib.optionals stdenv.isLinux [ libcap ]
+    [ glib openssl ] ++ lib.optionals stdenv.isLinux [ libcap ]
   );
   pname = "codex-rs";
   inherit version;
@@ -31,6 +32,7 @@ rustPlatform.buildRustPackage (_: {
     cmake
     llvmPackages.clang
     llvmPackages.libclang.lib
+    glib
     openssl
     pkg-config
   ] ++ lib.optionals stdenv.isLinux [
